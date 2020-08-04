@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:bookkeeping_app/pages/HomePage.dart';
 import 'package:bookkeeping_app/pages/StarterPage.dart';
 
 void main() => runApp(

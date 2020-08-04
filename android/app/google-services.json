@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "834004142950",
+    "firebase_url": "https://reimbursement-21256.firebaseio.com",
+    "project_id": "reimbursement-21256",
+    "storage_bucket": "reimbursement-21256.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834004142950:android:c00cd926636350f309d6a7",
+        "android_client_info": {
+          "package_name": "com.example.bookkeeping_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "834004142950-3c98hvj9bcovmfgnohc0uj59elaen2gi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBu24eNYev8PAKwanvCryy_toTxqXZQfNo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "834004142950-3c98hvj9bcovmfgnohc0uj59elaen2gi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834004142950:android:47ef9f5c2af56b9d09d6a7",
+        "android_client_info": {
+          "package_name": "com.koma.firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "834004142950-3c98hvj9bcovmfgnohc0uj59elaen2gi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBu24eNYev8PAKwanvCryy_toTxqXZQfNo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "834004142950-3c98hvj9bcovmfgnohc0uj59elaen2gi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
