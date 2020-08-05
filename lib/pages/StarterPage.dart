@@ -1,7 +1,9 @@
 import 'package:bookkeeping_app/pages/LoginPage.dart';
+import 'package:bookkeeping_app/pages/HomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:bookkeeping_app/Animation/FadeAnimation.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StarterPage extends StatefulWidget {
   @override
@@ -21,6 +23,7 @@ class _StarterPageState extends State<StarterPage>
     _animation =
         Tween<double>(begin: 1.0, end: 25.0).animate(_animationController);
     super.initState();
+    _loadName();
   }
 
   @override
@@ -28,6 +31,15 @@ class _StarterPageState extends State<StarterPage>
     _animationController.dispose();
 
     super.dispose();
+  }
+
+  Future<void> _loadName() async {
+    // Get the name from SharedPreferences
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.get('Name') != null) {
+      _animationController.forward().then((f) => Navigator.push(context,
+          PageTransition(type: PageTransitionType.fade, child: HomePage())));
+    }
   }
 
   void _onTap() {

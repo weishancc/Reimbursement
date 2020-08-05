@@ -1,8 +1,11 @@
+import 'package:bookkeeping_app/pages/HomePage.dart';
 import 'package:bookkeeping_app/pages/StarterPage.dart';
 import 'package:bookkeeping_app/pages/SignUpPage.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:bookkeeping_app/Animation/FadeAnimation.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,6 +16,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   AnimationController _animationController;
   Animation<double> _animation;
   bool _textVisible = true;
+  final TextEditingController nameCtr = new TextEditingController();
+  final TextEditingController passwordCtr = new TextEditingController();
+  DatabaseReference cruiser = FirebaseDatabase.instance.reference();
 
   @override
   void initState() {
@@ -30,15 +36,35 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  // OnTap
   void _onTap() {
     setState(() {
       _textVisible = false;
     });
 
-    _animationController.forward().then((f) => Navigator.push(context,
-        PageTransition(type: PageTransitionType.fade, child: StarterPage())));
+    //Check the login information
+    DataSnapshot snapshot;
+    cruiser.child('Users/${nameCtr.text.trim()}').once().then((snapshot) {
+      if (snapshot.value != null &&
+          snapshot.value['Password'] == passwordCtr.text) {
+        print('Welcome! ${nameCtr.text.trim()} !');
+
+        // Route and animate
+        _animationController.forward().then((f) => Navigator.push(
+            context,
+            PageTransition(
+                type: PageTransitionType.fade, child: HomePage())));
+      } else {
+        Alert(
+          context: context,
+          title: "Failed!",
+          desc: "Name / password error or doesn't exist",
+        ).show();
+      }
+    });
   }
 
+  // Jump to SignUpPage
   void _signUp() {
     setState(() {
       _textVisible = false;
@@ -92,6 +118,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                   hintText: "Name",
                                   hintStyle:
                                       TextStyle(color: Colors.grey[400])),
+                              style: TextStyle(
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.bold),
+                              controller: nameCtr,
                             ),
                           ),
                           Container(
@@ -102,6 +132,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 hintText: "Password",
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                               ),
+                              style: TextStyle(
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.bold),
+                              controller: passwordCtr,
+                              obscureText: true,
                             ),
                           ),
                         ],

@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bookkeeping_app/pages/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -37,25 +36,11 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void update() {
-    Map<String, String> data = {'password': '456'};
-    cruiser
-        .child('Users')
-        .child('Koma')
-        .set(data)
-        .whenComplete(() => print('Update finish!'))
-        .catchError((error) {
-      print(error);
-    });
-  }
-
+  // SignUp
   void _signUp(String name, password) {
     // See if the name exists first
     DataSnapshot snapshot;
-
-    cruiser.child('Users/$name').once().then((snapshot) {
-      print(snapshot.value);
-
+    cruiser.child('Users/$name').once().then((snapshot) async {
       if (snapshot.value != null) {
         Alert(
                 context: context,
@@ -64,9 +49,11 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
             .show();
       } else {
         //New one, set name and password
-        Map<String, String> data = {'Password': password};
-        /*cruiser.child('Users/$name').set(Map{'Notify': 0});
-        cruiser.child('Users/$name').set('Record': 0});*/
+        Map<String, dynamic> data = {
+          'Password': password,
+          'Notify': 0,
+          'Record': 0
+        };
 
         cruiser
             .child('Users/$name')
@@ -88,19 +75,48 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
             .catchError((error) {
           print(error);
         });
+
+        // Store the name to SharedPreferences
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+        sharedPreferences.setString('Name', nameCtr.text);
+        print('Store name ${nameCtr.text} sp successfully!');
       }
     }).catchError((error) {
       print(error);
     });
   }
 
+  //OnTap
   void _onTap() {
     setState(() {
       _textVisible = false;
     });
 
-    // Jump to signUp
-    this._signUp(nameCtr.text, passwordCtr.text);
+    // Check the rule of input name and pw
+    RegExp reg = new RegExp(r"[0-9A-Za-z]$");
+    if (nameCtr.text.isNotEmpty &&
+        passwordCtr.text.isNotEmpty &&
+        reg.hasMatch(nameCtr.text)) {
+      this._signUp(nameCtr.text.trim(), passwordCtr.text.trim());
+    } else {
+      Alert(
+        context: context,
+        title: "Failed!",
+        desc: "Your account contains illegal characters or empty.",
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () => Navigator.pop(context),
+          )
+        ],
+      ).show();
+      return;
+    }
+
     // Route and animate
     _animationController.forward().then((f) => Navigator.push(context,
         PageTransition(type: PageTransitionType.fade, child: LoginPage())));
