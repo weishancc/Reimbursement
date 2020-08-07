@@ -111,6 +111,15 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_calculator:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: d9b407d13ed87c898341ad67e9afcc59262b5768
+      url: "git://github.com/flytreeleft/flutter_calculator.git"
+    source: git
+    version: "0.2.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -143,7 +152,7 @@ packages:
     source: hosted
     version: "2.1.12"
   intl:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: intl
       url: "https://pub.dartlang.org"
