@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:bookkeeping_app/Animation/FadeAnimation.dart';
 import 'package:intl/intl.dart';
@@ -14,9 +15,10 @@ void _addEvent() {
 
 class _HomePageState extends State<HomePage> {
   String time = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  String event = "";
-  String loaner = "";
-  var amount;
+  String event = "Food";
+  String loaner = "??";
+  double amount = 0.0;
+  Map<dynamic, dynamic> users;
 
   @override
   Widget build(BuildContext context) {
@@ -282,6 +284,9 @@ class _HomePageState extends State<HomePage> {
                     firstDate: DateTime(2012),
                     lastDate: DateTime(2021),
                   );
+                  print(result);
+
+                  // set State
                   state(() {
                     time = DateFormat('yyyy-MM-dd').format(result);
                   });
@@ -310,7 +315,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Text(
-              'Restaurant',
+              event,
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 24,
@@ -330,7 +335,34 @@ class _HomePageState extends State<HomePage> {
                     Text("Add"),
                   ],
                 ),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () async {
+                  //Show GridView
+                  await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        content: Container(
+                          width: double.maxFinite,
+                          height: MediaQuery.of(context).size.height / 2,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                          ),
+                          child: GridView.count(crossAxisCount: 2, children: [
+                            gridList('Food', context),
+                            gridList('Shopping', context),
+                            gridList('Clothing', context),
+                            gridList('Entertain', context),
+                            gridList('Transportation', context),
+                            gridList('Others', context),
+                          ]),
+                        ),
+                      );
+                    },
+                  );
+
+                  // set State
+                  state(() {});
+                },
               ),
             ),
           ],
@@ -377,36 +409,40 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 onPressed: () async {
-                  showDialog(
+                  // Retrieve the username on firebase
+                  DatabaseReference cruiser =
+                      FirebaseDatabase.instance.reference().child('Users');
+                  cruiser.once().then((DataSnapshot snapshot) {
+                    users = snapshot.value;
+                  });
+
+                  //Show ListView
+                  await showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
                         content: Container(
                           width: double.maxFinite,
                           child: ListView(
-                            children: <Widget>[
-                              ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage:
-                                      AssetImage('assets/images/bg.jpg'),
-                                ),
-                                title: Text('Horse'),
+                            children: List.generate(
+                              users.length,
+                              (index) => ListTile(
+                                leading: Icon(Icons.person),
+                                title: Text(users.keys.toList()[index]),
                                 onTap: () {
-                                  print('Horse');
+                                  loaner = users.keys.toList()[index];
+                                  Navigator.pop(context);
+                                  print(loaner);
                                 },
                               ),
-                              ListTile(
-                                title: Text('Cat'),
-                              ),
-                              ListTile(
-                                title: Text('Duck'),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       );
                     },
                   );
+
+                  // set State
                   state(() {});
                 },
               ),
@@ -455,6 +491,9 @@ class _HomePageState extends State<HomePage> {
                   var result = await showCalculator(
                     context: context,
                   );
+                  print(result);
+
+                  // set State
                   state(() {
                     amount = result;
                   });
@@ -489,6 +528,39 @@ class _HomePageState extends State<HomePage> {
           ),
         )),
       ],
+    );
+  }
+
+  Widget gridList(String category, BuildContext context) {
+    return ListTile(
+      title: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          image: DecorationImage(
+            image: AssetImage('assets/images/$category.jpg'),
+            fit: BoxFit.cover,
+            colorFilter: new ColorFilter.mode(
+              Colors.transparent.withOpacity(0.6),
+              BlendMode.dstATop,
+            ),
+          ),
+        ),
+        child: MaterialButton(
+          child: Text(
+            category,
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          onPressed: () {
+            event = category;
+            Navigator.pop(context);
+            print(event);
+          },
+        ),
+      ),
     );
   }
 }
