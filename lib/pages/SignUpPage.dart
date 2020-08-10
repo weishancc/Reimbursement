@@ -18,6 +18,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
   bool _textVisible = true;
   final TextEditingController nameCtr = new TextEditingController();
   final TextEditingController passwordCtr = new TextEditingController();
+  DatabaseReference cruiser;
 
   @override
   void initState() {
@@ -39,7 +40,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
   void _signUp(String name, password) {
     // See if the name exists first
     DataSnapshot snapshot;
-    DatabaseReference cruiser = FirebaseDatabase.instance.reference();
+     cruiser = FirebaseDatabase.instance.reference();
     cruiser.child('Users/$name').once().then((snapshot) async {
       if (snapshot.value != null) {
         Alert(

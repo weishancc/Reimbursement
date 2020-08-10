@@ -36,9 +36,13 @@ class _StarterPageState extends State<StarterPage>
   Future<void> _loadName() async {
     // Get the name from SharedPreferences
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.get('Name') != null) {
-      _animationController.forward().then((f) => Navigator.push(context,
-          PageTransition(type: PageTransitionType.fade, child: HomePage())));
+    var loginName = sharedPreferences.get('Name');
+
+    if (loginName != null) {
+      _animationController.forward().then((f) => Navigator.push(
+          context,
+          PageTransition(
+              type: PageTransitionType.fade, child: HomePage(loginName))));
     }
   }
 

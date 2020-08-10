@@ -1,24 +1,30 @@
+import 'dart:io';
+
 import 'package:firebase_database/firebase_database.dart';
+import 'package:bookkeeping_app/pages/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:bookkeeping_app/Animation/FadeAnimation.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_calculator/flutter_calculator.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class HomePage extends StatefulWidget {
+  // Receive the loginName from LoginPage
+  var loginName;
+
+  HomePage(this.loginName);
+
   @override
   _HomePageState createState() => _HomePageState();
-}
-
-void _addEvent() {
-  print('text');
 }
 
 class _HomePageState extends State<HomePage> {
   String time = DateFormat('yyyy-MM-dd').format(DateTime.now());
   String event = "Food";
-  String loaner = "??";
-  double amount = 0.0;
+  String loaner = "財...哥...";
+  double amount = 100.0;
   Map<dynamic, dynamic> users;
+  DatabaseReference cruiser;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +79,7 @@ class _HomePageState extends State<HomePage> {
             image: DecorationImage(
                 image: AssetImage('assets/images/home_bg.jpg'),
                 fit: BoxFit.cover)),
-        //child: Padding
+        // child: Padding
         child: SingleChildScrollView(
           padding: EdgeInsets.all(30),
           child: Column(
@@ -241,6 +247,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget itemList(state) {
+    var loginName = widget.loginName;
     return Column(
       children: <Widget>[
         Row(
@@ -257,7 +264,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               time,
               style: TextStyle(
-                color: Colors.black,
+                color: Colors.deepOrange,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -317,7 +324,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               event,
               style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.deepOrange,
                   fontSize: 24,
                   fontWeight: FontWeight.bold),
             ),
@@ -336,7 +343,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 onPressed: () async {
-                  //Show GridView
+                  // Show GridView
                   await showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -389,7 +396,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               loaner,
               style: TextStyle(
-                color: Colors.black,
+                color: Colors.deepOrange,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -410,13 +417,14 @@ class _HomePageState extends State<HomePage> {
                 ),
                 onPressed: () async {
                   // Retrieve the username on firebase
-                  DatabaseReference cruiser =
+                  cruiser =
                       FirebaseDatabase.instance.reference().child('Users');
                   cruiser.once().then((DataSnapshot snapshot) {
                     users = snapshot.value;
                   });
 
-                  //Show ListView
+                  sleep(const Duration(seconds: 1));
+                  // Show ListView
                   await showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -471,7 +479,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               amount.toString(),
               style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.deepOrange,
                   fontSize: 24,
                   fontWeight: FontWeight.bold),
             ),
@@ -506,27 +514,59 @@ class _HomePageState extends State<HomePage> {
           height: 12,
         ),
         Center(
-            child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            gradient: LinearGradient(
-              colors: [Colors.grey, Colors.blueGrey],
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              gradient: LinearGradient(
+                colors: [Colors.grey, Colors.blueGrey],
+              ),
+            ),
+            child: MaterialButton(
+              padding: EdgeInsets.all(10.0),
+              child: Text(
+                "Add",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                // Add the item into firebase
+                Map<String, String> data = {
+                  'Time': time,
+                  'Event': event,
+                  'Loaner': loaner,
+                  'Amount': amount.toString(),
+                };
+
+                cruiser = FirebaseDatabase.instance.reference();
+                cruiser
+                    .child('Users/$loginName/Record')
+                    .push()
+                    .set(data)
+                    .whenComplete(() => Alert(
+                          context: context,
+                          title: "Good!",
+                          desc: "Item adds successfully!",
+                          buttons: [
+                            DialogButton(
+                              child: Text(
+                                "OK",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                            )
+                          ],
+                        ).show())
+                    .catchError((error) {
+                  print(error);
+                });
+                Navigator.pop(context);
+              },
             ),
           ),
-          child: MaterialButton(
-            padding: EdgeInsets.all(10.0),
-            onPressed: () => {
-              Navigator.pop(context),
-            },
-            child: Text(
-              "Add",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-        )),
+        ),
       ],
     );
   }

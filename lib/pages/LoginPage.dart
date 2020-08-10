@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:bookkeeping_app/Animation/FadeAnimation.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -18,6 +19,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   bool _textVisible = true;
   final TextEditingController nameCtr = new TextEditingController();
   final TextEditingController passwordCtr = new TextEditingController();
+  DatabaseReference cruiser;
 
   @override
   void initState() {
@@ -43,15 +45,17 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
     //Check the login information
     DataSnapshot snapshot;
-    DatabaseReference cruiser = FirebaseDatabase.instance.reference();
+    cruiser = FirebaseDatabase.instance.reference();
     cruiser.child('Users/${nameCtr.text.trim()}').once().then((snapshot) {
       if (snapshot.value != null &&
           snapshot.value['Password'] == passwordCtr.text) {
         print('Welcome! ${nameCtr.text.trim()} !');
 
         // Route and animate
-        _animationController.forward().then((f) => Navigator.push(context,
-            PageTransition(type: PageTransitionType.fade, child: HomePage())));
+        _animationController.forward().then((f) => Navigator.push(
+            context,
+            PageTransition(
+                type: PageTransitionType.fade, child: HomePage(nameCtr.text))));
       } else {
         Alert(
           context: context,
