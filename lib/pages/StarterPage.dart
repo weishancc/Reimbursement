@@ -60,16 +60,23 @@ class _StarterPageState extends State<StarterPage>
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage('assets/images/bg.jpg'), fit: BoxFit.cover)),
+          image: DecorationImage(
+            image: AssetImage('assets/images/bg.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: Container(
           /* Add the gradient */
           decoration: BoxDecoration(
-              gradient: LinearGradient(begin: Alignment.bottomCenter, colors: [
-            Colors.white.withOpacity(.1),
-            Colors.white.withOpacity(.2),
-            Colors.white.withOpacity(.2),
-          ])),
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              colors: [
+                Colors.white.withOpacity(.1),
+                Colors.white.withOpacity(.2),
+                Colors.white.withOpacity(.2),
+              ],
+            ),
+          ),
           child: Padding(
             padding: EdgeInsets.all(20.0),
             child: Column(

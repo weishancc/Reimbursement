@@ -24,10 +24,30 @@ class _HomePageState extends State<HomePage> {
   String loaner = "財...哥...";
   double amount = 100.0;
   Map<dynamic, dynamic> users;
-  DatabaseReference cruiser;
+  Map<dynamic, dynamic> events;
+  DatabaseReference cruiser = FirebaseDatabase.instance.reference();
+  ValueNotifier<int> _change =
+      ValueNotifier<int>(0); // Notifier for listening to new events
 
   @override
   Widget build(BuildContext context) {
+    cruiser
+        .child('Users/${widget.loginName}/Record/')
+        .onChildAdded
+        .listen((event) {
+      print('There is a change on Record!');
+      _change.value += 1;
+      print(_change);
+
+      cruiser
+          .child('Users/${widget.loginName}/Record/')
+          .once()
+          .then((DataSnapshot snapshot) {
+        events = snapshot.value;
+        print(events);
+      });
+    });
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white60,
@@ -76,9 +96,11 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Container(
         decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage('assets/images/home_bg.jpg'),
-                fit: BoxFit.cover)),
+          image: DecorationImage(
+            image: AssetImage('assets/images/home_bg.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
         // child: Padding
         child: SingleChildScrollView(
           padding: EdgeInsets.all(30),
@@ -88,7 +110,7 @@ class _HomePageState extends State<HomePage> {
               FadeAnimation(
                 1.5,
                 Container(
-                    width: 350,
+                    width: double.maxFinite,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Colors.white70,
@@ -128,33 +150,11 @@ class _HomePageState extends State<HomePage> {
               SizedBox(
                 height: 50,
               ),
-              FadeAnimation(
-                1.2,
-                makeItem(image: 'assets/images/2.jpg', date: 17),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              FadeAnimation(
-                1.3,
-                makeItem(image: 'assets/images/3.jpg', date: 18),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              FadeAnimation(
-                1.4,
-                makeItem(image: 'assets/images/4.jpg', date: 19),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              FadeAnimation(
-                1.5,
-                makeItem(image: 'assets/images/5.png', date: 20),
-              ),
-              SizedBox(
-                height: 30,
+              ValueListenableBuilder(
+                valueListenable: _change,
+                builder: (BuildContext context, int change, Widget child) {
+                  return eventUpdate();
+                },
               ),
             ],
           ),
@@ -163,7 +163,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget makeItem({image, date}) {
+  Widget makeItem({image, date, category, loaner}) {
     return Row(
       children: <Widget>[
         Container(
@@ -175,7 +175,7 @@ class _HomePageState extends State<HomePage> {
               Text(
                 date.toString(),
                 style: TextStyle(
-                    color: Colors.lightBlue,
+                    color: Colors.amber[300],
                     fontSize: 25,
                     fontWeight: FontWeight.bold),
               ),
@@ -210,7 +210,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   Text(
-                    "Bumbershoot 2019",
+                    category,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 30,
@@ -223,16 +223,18 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     children: <Widget>[
                       Icon(
-                        Icons.access_time,
+                        Icons.account_circle,
                         color: Colors.white,
                       ),
                       SizedBox(
                         width: 10,
                       ),
                       Text(
-                        "19:00 PM",
+                        loaner,
                         style: TextStyle(
                           color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
                       )
                     ],
@@ -241,6 +243,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
+        ),
+        SizedBox(
+          height: 236,
         ),
       ],
     );
@@ -417,13 +422,11 @@ class _HomePageState extends State<HomePage> {
                 ),
                 onPressed: () async {
                   // Retrieve the username on firebase
-                  cruiser =
-                      FirebaseDatabase.instance.reference().child('Users');
-                  cruiser.once().then((DataSnapshot snapshot) {
+                  cruiser.child('Users').once().then((DataSnapshot snapshot) {
                     users = snapshot.value;
                   });
 
-                  sleep(const Duration(seconds: 1));
+                  // sleep(const Duration(seconds: 1));
                   // Show ListView
                   await showDialog(
                     context: context,
@@ -539,7 +542,6 @@ class _HomePageState extends State<HomePage> {
                   'Amount': amount.toString(),
                 };
 
-                cruiser = FirebaseDatabase.instance.reference();
                 cruiser
                     .child('Users/$loginName/Record')
                     .push()
@@ -602,5 +604,34 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  // Refresh the event listening from firebase
+  Widget eventUpdate() {
+    if (events != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          for (var key in events.keys)
+            FadeAnimation(
+              1.2,
+              makeItem(
+                image: 'assets/images/${events[key]['Event']}.jpg',
+                date: events[key]['Time']
+                    .toString()
+                    .substring(5)
+                    .replaceAll('-', '/'),
+                category: events[key]['Event'],
+                loaner: events[key]['Loaner'],
+              ),
+            ),
+        ],
+      );
+    } else {
+      // If there is no events
+      return Container(
+        height: double.maxFinite,
+      );
+    }
   }
 }
